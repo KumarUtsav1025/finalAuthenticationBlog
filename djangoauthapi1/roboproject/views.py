@@ -64,8 +64,14 @@ def post_comment(request, pk):
 @api_view(['PUT'])
 def react(request, pk, arg):
     obj=Post.objects.get(id = pk)
-    num = obj.likes + 1 if arg == "likes" else obj.dislikes +1
-    data= {arg : num}
+    if arg == "like" :
+        num = obj.likes + 1  
+    elif arg == "dislike" :
+        num = obj.dislikes + 1
+    else :
+        return Response({'status' : 'False','body': 'Wrong Endpoint'}, status.HTTP_400_BAD_REQUEST)
+    arg = f'{arg}s'
+    data= { arg : num}
     serializer = PostSerializer(obj, data= data, partial = True)
     if serializer.is_valid():
         serializer.save()
