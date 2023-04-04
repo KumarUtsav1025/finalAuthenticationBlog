@@ -19,21 +19,18 @@ class PostAPI(APIView):
         serializer = PostSerializer(data= data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response({'status' : 'True','body': serializer.data}, status.HTTP_200_OK)
         else:
-            return Response(serializer.errors)
+            return Response({'status' : 'False','body': serializer.errors}, status.HTTP_400_BAD_REQUEST)
         
     def delete(self, request):
         if request.user.is_admin:
             data = request.data
             obj=Post.objects.get(id = data['id'])
             obj.delete()
-            return Response({'message':'Post deleted'})
+            return Response({'status' : 'False','message': 'Post Deleted'}, status.HTTP_200_OK)
         else: 
-            return Response({
-                'status' : 'False',
-                'message': 'Pehli fursat mein nikal'
-                }, status.HTTP_400_BAD_REQUEST)
+            return Response({'status' : 'False','message': 'Pehli fursat mein nikal'}, status.HTTP_400_BAD_REQUEST)
             
 
 
@@ -46,11 +43,10 @@ def get_projects(request):
         paginator  = Paginator(objs, page_size)
         serializer = PostSerializer(paginator.page(page), many = True)
     except Exception as e:
-        return Response({
-            'status' : 'False',
-            'message': 'Empty Page'
-            }, status.HTTP_400_BAD_REQUEST)
-    return Response(serializer.data)
+        return Response({'status' : 'False','message': 'Empty Page'}, status.HTTP_400_BAD_REQUEST)
+    
+    return Response({'status' : 'True','body': serializer.data}, status.HTTP_200_OK)
+
 
 @api_view(['POST'])
 def post_comment(request, pk):
@@ -60,21 +56,28 @@ def post_comment(request, pk):
         print("hello")
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response({'status' : 'True','body': serializer.data}, status.HTTP_200_OK)
         else:
-            return Response(serializer.errors)
+            return Response({'status' : 'False','body': serializer.errors}, status.HTTP_400_BAD_REQUEST)
         
         
 @api_view(['PUT'])
-def react(request, pk, arg, num):
+def react(request, pk, arg):
     obj=Post.objects.get(id = pk)
-    data= {arg : num}
+    if arg == "like" :
+        num = obj.likes + 1  
+    elif arg == "dislike" :
+        num = obj.dislikes + 1
+    else :
+        return Response({'status' : 'False','body': 'Wrong Endpoint'}, status.HTTP_400_BAD_REQUEST)
+    arg = f'{arg}s'
+    data= { arg : num}
     serializer = PostSerializer(obj, data= data, partial = True)
     if serializer.is_valid():
         serializer.save()
-        return Response(serializer.data)
+        return Response({'status' : 'True','body': serializer.data}, status.HTTP_200_OK)
     else:
-        return Response(serializer.errors)
+        return Response({'status' : 'False','body': serializer.errors}, status.HTTP_400_BAD_REQUEST)
     
 
 @api_view(['PUT'])
@@ -86,14 +89,11 @@ def verify(request, pk):
         serializer = PostSerializer(obj, data= data, partial = True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response({'status' : 'True','body': serializer.data}, status.HTTP_200_OK)
         else:
-            return Response(serializer.errors)
+            return Response({'status' : 'False','body': serializer.errors}, status.HTTP_400_BAD_REQUEST)
     else: 
-        return Response({
-            'status' : 'False',
-            'message': 'Admin bnja phle ***'
-            }, status.HTTP_400_BAD_REQUEST)
+        return Response({'status' : 'False','message': 'Admin bnja phle'}, status.HTTP_401_UNAUTHORIZED)
 
 
 
@@ -103,9 +103,6 @@ def get_unverified(request):
     if request.user.is_admin:
         objs = Post.objects.filter(is_verified =False)
         serializer = PostSerializer(objs, many = True)
-        return Response(serializer.data)
+        return Response({'status' : 'True','body': serializer.data}, status.HTTP_200_OK)
     else: 
-        return Response({
-            'status' : 'False',
-            'message': 'Pehli fursat mein nikal'
-            }, status.HTTP_400_BAD_REQUEST)
+        return Response({'status' : 'False','message': 'Pehli fursat mein nikal'}, status.HTTP_401_UNAUTHORIZED)
