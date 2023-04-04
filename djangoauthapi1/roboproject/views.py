@@ -62,8 +62,9 @@ def post_comment(request, pk):
         
         
 @api_view(['PUT'])
-def react(request, pk, arg, num):
+def react(request, pk, arg):
     obj=Post.objects.get(id = pk)
+    num = obj.likes + 1 if arg == "likes" else obj.dislikes +1
     data= {arg : num}
     serializer = PostSerializer(obj, data= data, partial = True)
     if serializer.is_valid():
