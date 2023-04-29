@@ -12,7 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 class PostAPI(APIView):
     
     parser_class = [MultiPartParser, FormParser]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def post(self, request):
         data = request.data
