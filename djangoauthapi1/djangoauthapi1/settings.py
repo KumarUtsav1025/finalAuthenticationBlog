@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'account',
     'roboproject',
+    'cloudinary_storage',
     'rest_framework_swagger',
 ]
 
@@ -141,8 +142,7 @@ AUTH_USER_MODEL = 'account.User'
 
 # Media
 MEDIA_URL = '/media/'
-# MEDIA_ROOT = BASE_DIR / 'media'
-MEDIA_ROOT = '/mnt/persistent/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
 
@@ -181,3 +181,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
 ]
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API'),
+    'API_SECRET': os.environ.get('CLOUDINARY_SECRET'),
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
